@@ -1,10 +1,9 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, TextStyle, ViewStyle } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, ScrollView, TextStyle, ViewStyle } from "react-native";
 import type { VoiceModParams } from "../types";
 import { EffectSlider } from "./EffectSlider";
 import { PresetManager } from "./PresetManager";
 import { SLIDER_CONFIGS } from "../constants";
-import { nativeVoiceMod } from "../native/NativeVoiceMod";
 
 const styles: Record<string, ViewStyle | TextStyle> = {
   container: {
@@ -43,116 +42,40 @@ const styles: Record<string, ViewStyle | TextStyle> = {
     letterSpacing: 0.5,
     marginBottom: 4,
   },
-  latencyRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "#2b2d31",
-    marginHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  latencyLabel: {
-    fontSize: 12,
-    color: "#b9bbbe",
-  },
-  latencyValue: {
-    fontSize: 12,
-    color: "#00b0f4",
-    fontFamily: "monospace",
-  },
   footer: {
     height: 40,
   },
 };
 
-// Toggle switch component matching Vendetta's patched FormSwitch
-const Toggle: React.FC<{
-  label: string;
-  value: boolean;
-  onValueChange: (v: boolean) => void;
-  disabled?: boolean;
-}> = ({ label, value, onValueChange, disabled = false }) => (
-  <View
-    style={{
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      backgroundColor: "#2b2d31",
-      marginHorizontal: 16,
-      borderRadius: 8,
-      marginBottom: 12,
-      opacity: disabled ? 0.4 : 1,
-    }}
-  >
-    <Text style={{ fontSize: 16, color: "#fff", fontWeight: "600" }}>
-      {label}
-    </Text>
-    <TouchableOpacity
-      onPress={() => !disabled && onValueChange(!value)}
-      style={{
-        width: 44,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: value ? "#00b0f4" : "#40444b",
-        justifyContent: "center",
-        paddingHorizontal: 2,
-      }}
-    >
-      <View
-        style={{
-          width: 20,
-          height: 20,
-          borderRadius: 10,
-          backgroundColor: "#fff",
-          alignSelf: value ? "flex-end" : "flex-start",
-        }}
-      />
-    </TouchableOpacity>
-  </View>
-);
+const defaultParams: VoiceModParams = {
+  voice: { gain: 0, pitchShift: 0 },
+  eq: { lowShelf: 0, highShelf: 0, midShelf: 0, treble: 0 },
+  spatial: { width: 0, pan: 0, autoPanSpeed: 0 },
+  space: { reverbSize: 30, reverbMix: 0 },
+  enabled: true,
+};
 
-interface VoiceModSettingsProps {
-  initialParams?: VoiceModParams;
-}
+const cloneParams = (p: VoiceModParams): VoiceModParams => ({
+  voice: { ...p.voice },
+  eq: { ...p.eq },
+  spatial: { ...p.spatial },
+  space: { ...p.space },
+  enabled: p.enabled,
+});
 
-export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
-  initialParams,
-}) => {
-  const [params, setParams] = useState<VoiceModParams>(
-    initialParams || {
-      voice: { gain: 0, pitchShift: 0 },
-      eq: { lowShelf: 0, highShelf: 0, midShelf: 0, treble: 0 },
-      spatial: { width: 0, pan: 0, autoPanSpeed: 0 },
-      space: { reverbSize: 30, reverbMix: 0 },
-      enabled: false,
-    }
-  );
-  const [latencyMs, setLatencyMs] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (nativeVoiceMod.isReady) {
-        setLatencyMs(nativeVoiceMod.getLatencyMs());
-      }
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
+export const VoiceModSettings: React.FC = () => {
+  const [params, setParams] = useState<VoiceModParams>(defaultParams);
 
   const updateParam = useCallback(
     (path: string, value: number | boolean) => {
       setParams((prev) => {
-        const next = structuredClone(prev);
+        const next = cloneParams(prev);
         const parts = path.split(".");
         if (parts.length === 1) {
           (next as any)[parts[0]] = value;
         } else if (parts.length === 2) {
           (next as any)[parts[0]][parts[1]] = value;
         }
-        nativeVoiceMod.update(next);
         return next;
       });
     },
@@ -160,37 +83,40 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
   );
 
   const applyPreset = useCallback((presetParams: VoiceModParams) => {
-    setParams(presetParams);
-    nativeVoiceMod.update(presetParams);
+    setParams(cloneParams(presetParams));
   }, []);
 
   return (
     <ScrollView style={styles.container as ViewStyle}>
-      {/* Master Toggle */}
-      <Toggle
-        label="VoiceMod Pro"
-        value={params.enabled}
-        onValueChange={(v) => updateParam("enabled", v)}
-      />
-
-      {/* Latency Display */}
-      <View style={styles.latencyRow as ViewStyle}>
-        <Text style={styles.latencyLabel as TextStyle}>Engine Latency</Text>
-        <Text style={styles.latencyValue as TextStyle}>
-          {nativeVoiceMod.isReady
-            ? `${latencyMs.toFixed(1)} ms`
-            : "Not initialized"}
+      <View style={{ paddingVertical: 12 }}>
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: "800",
+            color: "#fff",
+            textAlign: "center",
+            paddingHorizontal: 16,
+          }}
+        >
+          Xicor X Xenon Loud
+        </Text>
+        <Text
+          style={{
+            fontSize: 12,
+            color: "#b9bbbe",
+            textAlign: "center",
+            marginTop: 2,
+          }}
+        >
+          Voice Modulation & EQ
         </Text>
       </View>
 
-      {/* Presets */}
       <PresetManager
         currentParams={params}
         onApply={applyPreset}
-        disabled={!params.enabled}
       />
 
-      {/* Voice Section */}
       <View style={styles.section as ViewStyle}>
         <Text style={styles.sectionHeader as TextStyle}>Voice</Text>
         <View style={styles.sectionDivider as ViewStyle} />
@@ -203,7 +129,6 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.gain.step}
             unit={SLIDER_CONFIGS.gain.unit}
             onValueChange={(v) => updateParam("voice.gain", v)}
-            disabled={!params.enabled}
           />
           <EffectSlider
             label="Pitch Shift"
@@ -213,12 +138,10 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.pitchShift.step}
             unit={SLIDER_CONFIGS.pitchShift.unit}
             onValueChange={(v) => updateParam("voice.pitchShift", v)}
-            disabled={!params.enabled}
           />
         </View>
       </View>
 
-      {/* EQ Section */}
       <View style={styles.section as ViewStyle}>
         <Text style={styles.sectionHeader as TextStyle}>Equalizer</Text>
         <View style={styles.sectionDivider as ViewStyle} />
@@ -231,7 +154,6 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.lowShelf.step}
             unit={SLIDER_CONFIGS.lowShelf.unit}
             onValueChange={(v) => updateParam("eq.lowShelf", v)}
-            disabled={!params.enabled}
           />
           <EffectSlider
             label="Mid Shelf (Peaking)"
@@ -241,7 +163,6 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.midShelf.step}
             unit={SLIDER_CONFIGS.midShelf.unit}
             onValueChange={(v) => updateParam("eq.midShelf", v)}
-            disabled={!params.enabled}
           />
           <EffectSlider
             label="High Shelf"
@@ -251,7 +172,6 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.highShelf.step}
             unit={SLIDER_CONFIGS.highShelf.unit}
             onValueChange={(v) => updateParam("eq.highShelf", v)}
-            disabled={!params.enabled}
           />
           <EffectSlider
             label="Treble / Drible"
@@ -261,12 +181,10 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.treble.step}
             unit={SLIDER_CONFIGS.treble.unit}
             onValueChange={(v) => updateParam("eq.treble", v)}
-            disabled={!params.enabled}
           />
         </View>
       </View>
 
-      {/* Spatial Section */}
       <View style={styles.section as ViewStyle}>
         <Text style={styles.sectionHeader as TextStyle}>Spatial Audio</Text>
         <View style={styles.sectionDivider as ViewStyle} />
@@ -279,7 +197,6 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.width.step}
             unit={SLIDER_CONFIGS.width.unit}
             onValueChange={(v) => updateParam("spatial.width", v)}
-            disabled={!params.enabled}
           />
           <EffectSlider
             label="Pan"
@@ -289,7 +206,6 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.pan.step}
             unit={SLIDER_CONFIGS.pan.unit}
             onValueChange={(v) => updateParam("spatial.pan", v)}
-            disabled={!params.enabled}
           />
           <EffectSlider
             label="Auto-Pan Speed"
@@ -299,12 +215,10 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.autoPanSpeed.step}
             unit={SLIDER_CONFIGS.autoPanSpeed.unit}
             onValueChange={(v) => updateParam("spatial.autoPanSpeed", v)}
-            disabled={!params.enabled}
           />
         </View>
       </View>
 
-      {/* Space / Reverb Section */}
       <View style={styles.section as ViewStyle}>
         <Text style={styles.sectionHeader as TextStyle}>Space / Reverb</Text>
         <View style={styles.sectionDivider as ViewStyle} />
@@ -317,7 +231,6 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.reverbSize.step}
             unit={SLIDER_CONFIGS.reverbSize.unit}
             onValueChange={(v) => updateParam("space.reverbSize", v)}
-            disabled={!params.enabled}
           />
           <EffectSlider
             label="Reverb Mix (Wet/Dry)"
@@ -327,7 +240,6 @@ export const VoiceModSettings: React.FC<VoiceModSettingsProps> = ({
             step={SLIDER_CONFIGS.reverbMix.step}
             unit={SLIDER_CONFIGS.reverbMix.unit}
             onValueChange={(v) => updateParam("space.reverbMix", v)}
-            disabled={!params.enabled}
           />
         </View>
       </View>

@@ -113,7 +113,7 @@ async function main() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VoiceMod Pro - Revenge Plugin</title>
+  <title>Xicor X Xenon Loud - Revenge Plugin</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1e1f22; color: #dcddde; max-width: 800px; margin: 40px auto; padding: 0 20px; }
     h1 { color: #00b0f4; }
@@ -123,7 +123,7 @@ async function main() {
   </style>
 </head>
 <body>
-  <h1>VoiceMod Pro</h1>
+  <h1>Xicor X Xenon Loud</h1>
   <p>Real-time Voice Modulation & Equalization plugin for Revenge Discord mod.</p>
   <p>Install by pasting this URL into <strong>Settings → Revenge → Plugins → Install Plugin</strong>:</p>
   <div class="url" id="installUrl">Loading...</div>
@@ -147,7 +147,7 @@ async function main() {
   </div>
 
   <script>
-    var url = window.location.href.replace(/\\/?$/, '/voicemod-pro/index.js');
+    var url = window.location.href.replace(/\/?$/, '/xicor-x-xenon-loud/index.js');
     document.getElementById('installUrl').textContent = url;
   </script>
 </body>

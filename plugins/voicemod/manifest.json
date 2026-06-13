@@ -1,11 +1,11 @@
 {
-  "name": "VoiceModPro",
+  "name": "Xicor X Xenon Loud",
   "version": "1.0.0",
-  "description": "Ultra-high-performance real-time Voice Modulation & Equalization plugin with native C++ DSP engine",
+  "description": "Real-time Voice Modulation & Equalization plugin with DSP effects rack",
   "authors": [
     {
-      "name": "VoiceMod Team",
-      "id": "voicemod"
+      "name": "xicor0793",
+      "id": "xicor0793"
     }
   ],
   "main": "index.tsx",
