@@ -1,13 +1,14 @@
 const { patcher } = vendetta;
 
 const PARAMS = {
-  masterGain: 50, inputBoost: 30, density: 0, voltage: 0,
-  subBass: 20, presence: 30, width: 0, enabled: true,
+  masterGain: 100, inputBoost: 100, density: 100, voltage: 100,
+  subBass: 100, presence: 100, width: 0, enabled: true,
 };
 
 let patches = [];
 
 function applyDSP(buf) {
+  if (!buf || typeof buf.length !== "number") return;
   const gain = 1 + ((PARAMS.masterGain / 100) * 10000);
   const boost = 1 + ((PARAMS.inputBoost / 100) * 100);
   const { density, voltage, subBass, presence, width } = PARAMS;
@@ -37,15 +38,44 @@ function applyDSP(buf) {
   }
 }
 
+function tryPatch(mod, fn) {
+  if (mod && typeof mod[fn] === "function") {
+    patches.push(patcher.before(mod, fn, (args) => {
+      if (!PARAMS.enabled) return;
+      for (let i = 0; i < args.length; i++) {
+        if (args[i] && typeof args[i].length === "number") {
+          applyDSP(args[i]);
+        }
+      }
+    }));
+    return true;
+  }
+  return false;
+}
+
 export default {
   name: "Bien Hyper-Sonic",
   onLoad() {
     try {
-      const enc = vendetta.metro.common.findByProps("encodeOpus");
-      if (enc?.encodeOpus) {
-        patches.push(patcher.before(enc, "encodeOpus", ([buf]) => {
-          if (PARAMS.enabled && buf instanceof Float32Array) applyDSP(buf);
-        }));
+      const c = vendetta.metro.common;
+      const names = [
+        "encodeOpus", "decodeOpus", "processAudio", "processLocalAudio",
+        "setLocalVolume", "setLocalAudioDevice", "startCapture", "stopCapture",
+        "onAudioData", "handleAudioData", "processVoiceData", "sendVoiceData",
+      ];
+      for (const name of names) {
+        try {
+          const mod = c.findByProps(name);
+          if (mod && tryPatch(mod, name)) console.log("[BHS] Patched:", name);
+          const mod2 = c.find(x => x && typeof x === "object" && Object.values(x).some(v => typeof v === "function" && (v.name === name || v.displayName === name)));
+          if (mod2) {
+            for (const key of Object.keys(mod2)) {
+              if (typeof mod2[key] === "function" && key === name && tryPatch(mod2, key)) {
+                console.log("[BHS] Patched (find):", name);
+              }
+            }
+          }
+        } catch (e) {}
       }
     } catch (e) { console.error("[BHS]", e); }
   },
