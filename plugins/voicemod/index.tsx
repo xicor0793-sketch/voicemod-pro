@@ -58,12 +58,14 @@ export default {
       const R = vendetta.metro.common.React;
       if (!R?.createElement) return null;
       const RN = vendetta.metro.common.ReactNative;
-      if (!RN) return null;
-      const { FormRow, FormSwitch } = vendetta.ui.components;
+      if (!RN?.View) return null;
+      const C = vendetta.ui?.components?.Forms || vendetta.ui?.components;
+      const FormRow = C?.FormRow, FormSwitch = C?.FormSwitch;
       if (!FormRow) return null;
 
       const [, f] = R.useState(0);
       const force = () => f(x => x + 1);
+      const steps = [0,10,20,30,40,50,60,70,80,90,100];
 
       const params = [
         { k: "masterGain", l: "Master Gain", f: v => Math.round(1 + v/100*10000) + "x" },
@@ -75,29 +77,28 @@ export default {
         { k: "width", l: "Width", f: v => v + "%" },
       ];
 
-      const makeRow = (p) => R.createElement(FormRow, {
-        key: p.k, label: p.l,
-        subLabel: p.f(PARAMS[p.k]),
-        onPress: () => {
-          const steps = [0,10,20,30,40,50,60,70,80,90,100];
-          PARAMS[p.k] = steps[(steps.indexOf(PARAMS[p.k]) + 1) % steps.length];
-          force();
-        }
+      const header = R.createElement(FormRow, {
+        key: "hdr", label: "Bien Hyper-Sonic",
+        subLabel: PARAMS.enabled ? "Active" : "Bypassed",
+        trailing: FormSwitch ? R.createElement(FormSwitch, {
+          value: PARAMS.enabled,
+          onValueChange: v => { PARAMS.enabled = v; force(); }
+        }) : null
       });
 
-      return R.createElement(RN.ScrollView, { style: { flex: 1 } },
-        R.createElement(RN.View, { style: { marginTop: 16 } },
-          R.createElement(FormRow, {
-            key: "hdr", label: "Bien Hyper-Sonic",
-            subLabel: PARAMS.enabled ? "Active" : "Bypassed",
-            trailing: R.createElement(FormSwitch, {
-              value: PARAMS.enabled,
-              onValueChange: v => { PARAMS.enabled = v; force(); }
-            })
-          }),
-          ...params.map(makeRow)
-        )
-      );
+      const rows = [header];
+      for (const p of params) {
+        rows.push(R.createElement(FormRow, {
+          key: p.k, label: p.l,
+          subLabel: p.f(PARAMS[p.k]),
+          onPress: () => {
+            PARAMS[p.k] = steps[(steps.indexOf(PARAMS[p.k]) + 1) % steps.length];
+            force();
+          }
+        }));
+      }
+
+      return R.createElement(RN.ScrollView, { style: { flex: 1 }, children: R.createElement(RN.View, { style: { marginTop: 16 }, children: rows }) });
     } catch (e) { console.log("[BHS] Settings error:", e?.message); return null; }
   },
 };
