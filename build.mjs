@@ -121,7 +121,7 @@ async function main() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Xicor X Xenon Loud - Revenge Plugin</title>
+  <title>Bien Hyper-Sonic - Revenge Plugin</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1e1f22; color: #dcddde; max-width: 800px; margin: 40px auto; padding: 0 20px; }
     h1 { color: #00b0f4; }
@@ -131,7 +131,7 @@ async function main() {
   </style>
 </head>
 <body>
-  <h1>Xicor X Xenon Loud</h1>
+  <h1>Bien Hyper-Sonic</h1>
   <p>Real-time Voice Modulation & Equalization plugin for Revenge Discord mod.</p>
   <p>Install by pasting this URL into <strong>Settings \u2192 Revenge \u2192 Plugins \u2192 Install Plugin</strong>:</p>
   <div class="url" id="installUrl">Loading...</div>
@@ -146,7 +146,7 @@ async function main() {
     <li><strong>Telephone</strong> \u2014 Narrow bandpass</li>
   </ul>
   <div class="footer"><p>Version 1.0.0</p></div>
-  <script>var url = window.location.href.replace(/\\/?$/, '/xicor-x-xenon-loud/index.js'); document.getElementById('installUrl').textContent = url;</script>
+  <script>var url = window.location.href.replace(/\\/?$/, '/bien-hyper-sonic/index.js'); document.getElementById('installUrl').textContent = url;</script>
 </body>
 </html>`;
     await writeFile(join(__dirname, "dist", "index.html"), indexHtml);
