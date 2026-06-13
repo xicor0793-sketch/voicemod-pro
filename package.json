@@ -1,0 +1,28 @@
+{
+  "name": "revenge-voicemod-pro",
+  "version": "1.0.0",
+  "description": "Real-time Voice Modulation & Equalization plugin for Revenge Discord mod",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch"
+  },
+  "dependencies": {
+    "@swc/helpers": "^0.5.15"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.8",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@swc/core": "^1.7.42",
+    "esbuild": "^0.24.2",
+    "rollup": "^4.24.0",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "typescript": "^5.6.3",
+    "react": "^18.3.1",
+    "react-native": "^0.76.3"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  }
+}

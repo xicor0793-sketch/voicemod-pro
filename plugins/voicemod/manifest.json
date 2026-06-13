@@ -1,0 +1,15 @@
+{
+  "name": "VoiceModPro",
+  "version": "1.0.0",
+  "description": "Ultra-high-performance real-time Voice Modulation & Equalization plugin with native C++ DSP engine",
+  "authors": [
+    {
+      "name": "VoiceMod Team",
+      "id": "voicemod"
+    }
+  ],
+  "main": "index.tsx",
+  "vendetta": {
+    "icon": "VolumeUp"
+  }
+}
