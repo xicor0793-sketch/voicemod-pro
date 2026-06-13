@@ -46,6 +46,9 @@ export default {
         patches.push(patcher.before(enc, "encodeOpus", ([buf]) => {
           if (PARAMS.enabled && buf instanceof Float32Array) applyDSP(buf);
         }));
+        console.log("[BHS] Patched encodeOpus");
+      } else {
+        console.log("[BHS] encodeOpus not found");
       }
     } catch (e) { console.error("[BHS]", e); }
   },
@@ -55,10 +58,17 @@ export default {
   },
   settings: () => {
     try {
-      const R = window.React;
-      if (!R?.createElement) return null;
-      const { FormRow, FormSwitch } = vendetta.ui.components;
-      if (!FormRow) return null;
+      const R = window.React?.createElement ? window.React : vendetta.metro.common.findByProps("createElement", "useState");
+      if (!R?.createElement) {
+        console.log("[BHS] Settings: React not found (window.React:", !!window.React, "metro.findByProps:", !!vendetta.metro.common.findByProps("createElement", "useState"), ")");
+        return null;
+      }
+      const FormRow = vendetta.ui?.components?.FormRow;
+      const FormSwitch = vendetta.ui?.components?.FormSwitch;
+      if (!FormRow) {
+        console.log("[BHS] Settings: FormRow not found (vendetta.ui:", !!vendetta.ui, "components:", !!vendetta.ui?.components, "keys:", vendetta.ui?.components ? Object.keys(vendetta.ui.components).join(",") : "none", ")");
+        return null;
+      }
       const [, f] = R.useState(0);
       const force = () => f(x => x + 1);
       const params = [
@@ -83,13 +93,16 @@ export default {
           key: p.k, label: p.l,
           subLabel: p.fmt(PARAMS[p.k]),
           onPress: () => {
-            const steps = p.k === "masterGain" || p.k === "inputBoost" ? [0, 20, 40, 60, 80, 100] : [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+            const steps = [0,10,20,30,40,50,60,70,80,90,100];
             PARAMS[p.k] = steps[(steps.indexOf(PARAMS[p.k]) + 1) % steps.length];
             force();
           }
         }))
       ];
       return R.createElement(R.Fragment, null, ...rows);
-    } catch (e) { return null; }
+    } catch (e) {
+      console.log("[BHS] Settings error:", e?.message, e?.stack?.slice?.(0, 200));
+      return null;
+    }
   },
 };
