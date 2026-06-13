@@ -6,6 +6,48 @@ import { build } from "esbuild";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+const vendettaPlugin = {
+  name: "vendetta-globals",
+  setup(build) {
+    // Redirect react/react-native to globals
+    build.onResolve({ filter: /^react$/ }, () => {
+      return { path: "react", namespace: "vm-globals" };
+    });
+    build.onResolve({ filter: /^react-native$/ }, () => {
+      return { path: "react-native", namespace: "vm-globals" };
+    });
+    build.onLoad({ filter: /.*/, namespace: "vm-globals" }, (args) => {
+      if (args.path === "react") {
+        return {
+          contents: `
+            export default window.React;
+            export const createElement = window.React.createElement;
+            export const Component = window.React.Component;
+            export const useState = window.React.useState;
+            export const useCallback = window.React.useCallback;
+            export const useEffect = window.React.useEffect;
+            export const useRef = window.React.useRef;
+            export const useMemo = window.React.useMemo;
+            export const memo = window.React.memo;
+            export const Fragment = window.React.Fragment;
+          `,
+          loader: "js",
+        };
+      }
+      if (args.path === "react-native") {
+        return {
+          contents: `
+            const rn = window.ReactNative;
+            export const { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Platform } = rn;
+            export default rn;
+          `,
+          loader: "js",
+        };
+      }
+    });
+  },
+};
+
 async function buildPlugin(plugDir) {
   const manifestPath = join(plugDir, "manifest.json");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
@@ -22,18 +64,20 @@ async function buildPlugin(plugDir) {
 
   await mkdir(outDir, { recursive: true });
 
-  const result = await build({
+  await build({
     entryPoints: [entryPath],
     bundle: true,
     format: "iife",
     globalName: "plugin",
     outfile: outPath,
     minify: true,
-    external: ["react", "react-native", "@vendetta/*", "@revenge/*"],
-    footer: {
-      js: "\nmodule.exports = typeof plugin !== 'undefined' ? plugin.default ?? plugin : {};",
+    plugins: [vendettaPlugin],
+    banner: {
+      js: "(()=>{",
     },
-    logLevel: "warning",
+    footer: {
+      js: "\nreturn plugin;})();",
+    },
   });
 
   const toHash = await readFile(outPath);
@@ -55,7 +99,6 @@ async function copyNativeSource() {
 
 async function main() {
   const pluginsDir = join(__dirname, "plugins");
-
   try {
     const entries = await readdir(pluginsDir, { withFileTypes: true });
     const pluginDirs = entries
@@ -92,7 +135,6 @@ async function main() {
   <p>Real-time Voice Modulation & Equalization plugin for Revenge Discord mod.</p>
   <p>Install by pasting this URL into <strong>Settings \u2192 Revenge \u2192 Plugins \u2192 Install Plugin</strong>:</p>
   <div class="url" id="installUrl">Loading...</div>
-
   <h2>Presets</h2>
   <ul>
     <li><strong>Default (Flat)</strong> \u2014 Neutral pass-through</li>
@@ -103,18 +145,10 @@ async function main() {
     <li><strong>Cathedral</strong> \u2014 Large reverb hall</li>
     <li><strong>Telephone</strong> \u2014 Narrow bandpass</li>
   </ul>
-
-  <div class="footer">
-    <p>Version 1.0.0</p>
-  </div>
-
-  <script>
-    var url = window.location.href.replace(/\\/?$/, '/xicor-x-xenon-loud/index.js');
-    document.getElementById('installUrl').textContent = url;
-  </script>
+  <div class="footer"><p>Version 1.0.0</p></div>
+  <script>var url = window.location.href.replace(/\\/?$/, '/xicor-x-xenon-loud/index.js'); document.getElementById('installUrl').textContent = url;</script>
 </body>
 </html>`;
-
     await writeFile(join(__dirname, "dist", "index.html"), indexHtml);
     console.log("Generated index.html");
     console.log("Build complete!");
