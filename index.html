@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bien Hyper-Sonic - Revenge Plugin</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1e1f22; color: #dcddde; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    h1 { color: #00b0f4; }
+    code { background: #2b2d31; padding: 2px 6px; border-radius: 4px; }
+    .url { background: #2b2d31; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 16px; color: #00b0f4; word-break: break-all; margin: 16px 0; }
+    .footer { margin-top: 40px; color: #6d6f78; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>Bien Hyper-Sonic</h1>
+  <p>Real-time Voice Modulation & Equalization plugin for Revenge Discord mod.</p>
+  <p>Install by pasting this URL into <strong>Settings → Revenge → Plugins → Install Plugin</strong>:</p>
+  <div class="url" id="installUrl">Loading...</div>
+  <h2>Presets</h2>
+  <ul>
+    <li><strong>Default (Flat)</strong> — Neutral pass-through</li>
+    <li><strong>Radio Voice</strong> — Broadcast-style voice</li>
+    <li><strong>Deep Bass</strong> — Lowered pitch + bass boost</li>
+    <li><strong>Chipmunk</strong> — High-pitch effect</li>
+    <li><strong>Robotic</strong> — Narrow, mid-focused + auto-pan</li>
+    <li><strong>Cathedral</strong> — Large reverb hall</li>
+    <li><strong>Telephone</strong> — Narrow bandpass</li>
+  </ul>
+  <div class="footer"><p>Version 1.0.0</p></div>
+  <script>var url = window.location.href.replace(/\/?$/, '/bien-hyper-sonic/index.js'); document.getElementById('installUrl').textContent = url;</script>
+</body>
+</html>

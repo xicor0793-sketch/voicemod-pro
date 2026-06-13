@@ -1,0 +1,16 @@
+{
+  "name": "Bien Hyper-Sonic",
+  "version": "77.0",
+  "description": "PC Destroyer - Real-time voice DSP with hard clipping, EQ, stereo widening",
+  "authors": [
+    {
+      "name": "xicor0793",
+      "id": "xicor0793"
+    }
+  ],
+  "main": "index.js",
+  "vendetta": {
+    "icon": "VolumeUp"
+  },
+  "hash": "a6a2de0a3c227fab386d8f1b142ff55744a9e2542f123e264ef826d70525b83b"
+}
