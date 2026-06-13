@@ -3,96 +3,74 @@ import { View, Text, TouchableOpacity, ScrollView, TextStyle, ViewStyle } from "
 import type { VoiceModParams, VoiceModPreset } from "../types";
 import { PRESETS, DEFAULT_PARAMS } from "../constants";
 
-const styles: Record<string, ViewStyle | TextStyle> = {
-  container: {
-    marginVertical: 12,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
-    marginBottom: 8,
-  },
-  presetRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-  },
-  presetChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: "#2f3136",
-    borderWidth: 1,
-    borderColor: "#40444b",
-    marginBottom: 6,
-  },
-  presetChipActive: {
-    backgroundColor: "#00b0f4",
-    borderColor: "#00b0f4",
-  },
-  presetText: {
-    fontSize: 13,
-    color: "#b9bbbe",
-  },
-  presetTextActive: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  resetButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: "#ed4245",
-    borderWidth: 1,
-    borderColor: "#ed4245",
-    marginBottom: 6,
-  },
-  resetText: {
-    fontSize: 13,
-    color: "#fff",
-    fontWeight: "600",
-  },
-};
-
 interface PresetManagerProps {
   currentParams: VoiceModParams;
   onApply: (params: VoiceModParams) => void;
   disabled?: boolean;
 }
 
+const presetColors = [
+  "#6d6f78",
+  "#4dc9f6",
+  "#3ba55c",
+  "#fbbf24",
+  "#a78bfa",
+  "#f472b6",
+  "#f58b8b",
+  "#ed4245",
+];
+
 export const PresetManager: React.FC<PresetManagerProps> = ({
   currentParams,
   onApply,
   disabled = false,
 }) => {
-  const isPresetActive = (preset: VoiceModPreset) => {
-    return JSON.stringify(preset.params) === JSON.stringify(currentParams);
-  };
+  const isPresetActive = (preset: VoiceModPreset) =>
+    JSON.stringify(preset.params) === JSON.stringify(currentParams);
 
   return (
-    <View style={styles.container as ViewStyle}>
-      <Text style={styles.title as TextStyle}>Presets</Text>
+    <View style={{ marginVertical: 8 }}>
+      <Text
+        style={{
+          fontSize: 13,
+          fontWeight: "700",
+          color: "#b9bbbe",
+          textTransform: "uppercase",
+          letterSpacing: 1,
+          paddingHorizontal: 16,
+          marginBottom: 8,
+        }}
+      >
+        Presets
+      </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={styles.presetRow as ViewStyle}>
+        <View style={{ flexDirection: "row", paddingHorizontal: 12, gap: 6 }}>
           {PRESETS.map((preset, idx) => {
             const active = isPresetActive(preset);
+            const color = presetColors[idx % presetColors.length];
             return (
               <TouchableOpacity
                 key={idx}
-                style={[
-                  styles.presetChip as ViewStyle,
-                  active && (styles.presetChipActive as ViewStyle),
-                  disabled && { opacity: 0.4 },
-                ]}
+                style={{
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                  borderRadius: 10,
+                  backgroundColor: active ? color : "#2b2d31",
+                  borderWidth: 1,
+                  borderColor: active ? color : "#33363b",
+                  marginBottom: 6,
+                  minWidth: 80,
+                  alignItems: "center",
+                }}
                 onPress={() => !disabled && onApply(preset.params)}
                 disabled={disabled}
               >
                 <Text
-                  style={[
-                    styles.presetText as TextStyle,
-                    active && (styles.presetTextActive as TextStyle),
-                  ]}
+                  style={{
+                    fontSize: 13,
+                    fontWeight: active ? "700" : "500",
+                    color: active ? "#fff" : "#b9bbbe",
+                  }}
                 >
                   {preset.name}
                 </Text>
@@ -100,11 +78,29 @@ export const PresetManager: React.FC<PresetManagerProps> = ({
             );
           })}
           <TouchableOpacity
-            style={[styles.resetButton as ViewStyle, disabled && { opacity: 0.4 }]}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              borderRadius: 10,
+              backgroundColor: "#2b2d31",
+              borderWidth: 1,
+              borderColor: "#ed4245",
+              marginBottom: 6,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
             onPress={() => !disabled && onApply(DEFAULT_PARAMS)}
             disabled={disabled}
           >
-            <Text style={styles.resetText as TextStyle}>Reset</Text>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "600",
+                color: "#ed4245",
+              }}
+            >
+              Reset
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

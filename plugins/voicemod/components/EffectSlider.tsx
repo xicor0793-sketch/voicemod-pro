@@ -1,29 +1,6 @@
 import React from "react";
 import { View, Text, TextStyle, ViewStyle } from "react-native";
 
-const styles: Record<string, ViewStyle | TextStyle> = {
-  container: {
-    marginVertical: 6,
-  },
-  labelRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 2,
-  },
-  label: {
-    fontSize: 14,
-    color: "#dcddde",
-    fontFamily: "sans-serif",
-  },
-  value: {
-    fontSize: 14,
-    color: "#00b0f4",
-    fontFamily: "monospace",
-    fontWeight: "600",
-  },
-};
-
 interface EffectSliderProps {
   label: string;
   value: number;
@@ -35,9 +12,6 @@ interface EffectSliderProps {
   disabled?: boolean;
 }
 
-// Vendetta/Revenge wraps this with their patched FormSlider internally.
-// This component provides the standard interface that Vendetta's
-// settings system expects.
 export const EffectSlider: React.FC<EffectSliderProps> = ({
   label,
   value,
@@ -48,93 +22,106 @@ export const EffectSlider: React.FC<EffectSliderProps> = ({
   onValueChange,
   disabled = false,
 }) => {
-  const sliderValue = ((value - min) / (max - min)) * 100;
+  const progress = ((value - min) / (max - min)) * 100;
   const displayValue = `${value >= 0 ? "+" : ""}${value}${unit}`;
+  const isCenter = min < 0 && max > 0;
 
   return (
-    <View style={styles.container as ViewStyle}>
-      <View style={styles.labelRow as ViewStyle}>
-        <Text style={styles.label as TextStyle}>{label}</Text>
-        <Text style={styles.value as TextStyle}>{displayValue}</Text>
-      </View>
-      <View style={{ opacity: disabled ? 0.4 : 1 }}>
-        <FormSlider
-          value={sliderValue}
-          min={0}
-          max={100}
-          step={1}
-          onValueChange={(v: number) => {
-            const mapped = min + (v / 100) * (max - min);
-            const stepped = Math.round(mapped / step) * step;
-            const clamped = Math.max(min, Math.min(max, stepped));
-            onValueChange(Math.round(clamped * 100) / 100);
-          }}
-        />
-      </View>
-    </View>
-  );
-};
-
-// Vendetta's patched FormSlider - imported from the mod's internal modules.
-// In practice, this is resolved via vendetta's module resolution system.
-const FormSlider: React.FC<{
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  onValueChange: (v: number) => void;
-}> = ({ value, min, max, step, onValueChange }) => {
-  const progress = (value - min) / (max - min);
-
-  return (
-    <View style={sliderStyles.container}>
-      <View style={sliderStyles.track}>
-        <View
-          style={[
-            sliderStyles.fill,
-            { width: `${progress * 100}%` },
-          ]}
-        />
-      </View>
+    <View style={{ marginVertical: 6 }}>
       <View
-        style={[
-          sliderStyles.thumb,
-          { left: `${progress * 100}%` },
-        ]}
-      />
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 4,
+        }}
+      >
+        <Text style={{ fontSize: 13, color: "#dcddde", fontWeight: "500" }}>
+          {label}
+        </Text>
+        <Text
+          style={{
+            fontSize: 13,
+            color: "#00b0f4",
+            fontFamily: "monospace",
+            fontWeight: "700",
+          }}
+        >
+          {displayValue}
+        </Text>
+      </View>
+      <View style={{ opacity: disabled ? 0.35 : 1 }}>
+        <View
+          style={{
+            height: 28,
+            justifyContent: "center",
+            position: "relative",
+          }}
+        >
+          <View
+            style={{
+              height: 6,
+              backgroundColor: "#1e1f22",
+              borderRadius: 3,
+              overflow: "hidden",
+              borderWidth: 1,
+              borderColor: "#33363b",
+            }}
+          >
+            {isCenter && (
+              <View
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: 0,
+                  bottom: 0,
+                  width: 2,
+                  backgroundColor: "#555",
+                  marginLeft: -1,
+                }}
+              />
+            )}
+            <View
+              style={{
+                height: "100%",
+                width: `${progress}%`,
+                backgroundColor: disabled ? "#6d6f78" : "#00b0f4",
+                borderRadius: 3,
+              }}
+            />
+            <View
+              style={{
+                position: "absolute",
+                left: `${progress}%`,
+                top: -5,
+                width: 16,
+                height: 16,
+                borderRadius: 8,
+                backgroundColor: "#fff",
+                marginLeft: -8,
+                shadowColor: "#000",
+                shadowOpacity: 0.4,
+                shadowRadius: 3,
+                shadowOffset: { width: 0, height: 2 },
+                elevation: 4,
+                borderWidth: 2,
+                borderColor: disabled ? "#6d6f78" : "#00b0f4",
+              }}
+            />
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginTop: 2,
+              paddingHorizontal: 2,
+            }}
+          >
+            <Text style={{ fontSize: 9, color: "#6d6f78" }}>{min}</Text>
+            <Text style={{ fontSize: 9, color: "#6d6f78" }}>{max}</Text>
+          </View>
+        </View>
+      </View>
     </View>
   );
-};
-
-const sliderStyles: Record<string, ViewStyle> = {
-  container: {
-    height: 32,
-    justifyContent: "center",
-    position: "relative",
-  },
-  track: {
-    height: 6,
-    backgroundColor: "#40444b",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  fill: {
-    height: 6,
-    backgroundColor: "#00b0f4",
-    borderRadius: 3,
-  },
-  thumb: {
-    position: "absolute",
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: "#fff",
-    marginLeft: -9,
-    top: 7,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 3,
-  },
 };
